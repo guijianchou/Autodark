@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="AutoDark.Core/AutoDark.Core.csproj" />
+  <Project Path="AutoDark.Tests/AutoDark.Tests.csproj" />
+  <Project Path="AutoDark/AutoDark.csproj">
+    <Platform Project="x64" />
+  </Project>
+</Solution>
