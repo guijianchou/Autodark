@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="AutoDark.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="AutoDark"
+    mc:Ignorable="d">
+    <Grid x:Name="RootGrid"
+          Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.Resources>
+            <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="15" />
+                <Setter Property="FontWeight" Value="SemiBold" />
+                <Setter Property="Margin" Value="0,0,0,8" />
+            </Style>
+            <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="TextWrapping" Value="Wrap" />
+            </Style>
+            <Style x:Key="SettingsCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="CornerRadius" Value="8" />
+            </Style>
+            <Style x:Key="IconToggleButtonStyle" TargetType="ToggleButton">
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Width" Value="36" />
+                <Setter Property="Height" Value="28" />
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="CornerRadius" Value="6" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+        </Grid.Resources>
+
+        <Grid x:Name="AppTitleBar"
+              Background="Transparent" />
+
+        <ScrollViewer x:Name="PageScrollViewer"
+                      Grid.Row="1"
+                      HorizontalScrollMode="Disabled"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollMode="Auto"
+                      VerticalScrollBarVisibility="Auto"
+                      SizeChanged="OnPageScrollViewerSizeChanged">
+            <Grid x:Name="ContentHost"
+                  HorizontalAlignment="Stretch">
+                <StackPanel x:Name="ContentStack"
+                            MaxWidth="1040"
+                            HorizontalAlignment="Center"
+                            Padding="48,20,48,32"
+                            Spacing="28">
+                <Grid x:Name="HeaderPanel"
+                      ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Image x:Name="HeaderIconImage"
+                           Width="32"
+                           Height="32"
+                           Source="Assets/LightSwitch.scale-200.png"
+                           VerticalAlignment="Top" />
+                    <StackPanel Grid.Column="1"
+                                Spacing="3">
+                        <TextBlock Text="AutoDark"
+                                   FontSize="20"
+                                   FontWeight="SemiBold" />
+                        <TextBlock Text="Switch between light and dark mode on a schedule."
+                                   Style="{StaticResource SecondaryTextStyle}" />
+                        <InfoBar x:Name="InlineStatusInfo"
+                                 IsOpen="False"
+                                 IsClosable="True"
+                                 Margin="0,6,0,0" />
+                    </StackPanel>
+                </Grid>
+
+                <StackPanel x:Name="ScheduleSection"
+                            Spacing="0">
+                    <TextBlock Text="Schedule"
+                               Style="{StaticResource SectionTitleStyle}" />
+                    <Border Style="{StaticResource SettingsCardStyle}">
+                        <StackPanel>
+                            <Grid x:Name="ScheduleModeRow"
+                                  MinHeight="68"
+                                  Padding="18,10"
+                                  ColumnSpacing="16"
+                                  RowSpacing="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="32" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Glyph="&#xE121;"
+                                          FontSize="18"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Mode" />
+                                    <TextBlock x:Name="ScheduleModeDescriptionText"
+                                               Text="Determine when dark mode should be turned on"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <ComboBox x:Name="ScheduleModeComboBox"
+                                          AutomationProperties.AutomationId="ModeSelection_LightSwitch"
+                                          Grid.Column="2"
+                                          Width="220"
+                                          VerticalAlignment="Center"
+                                          SelectionChanged="OnScheduleModeChanged">
+                                    <ComboBoxItem AutomationProperties.AutomationId="OffCBItem_LightSwitch"
+                                                  Content="Off"
+                                                  Tag="Off" />
+                                    <ComboBoxItem AutomationProperties.AutomationId="ManualCBItem_LightSwitch"
+                                                  Content="Fixed hours"
+                                                  Tag="FixedHours" />
+                                    <ComboBoxItem AutomationProperties.AutomationId="SunCBItem_LightSwitch"
+                                                  Content="Sunset to sunrise"
+                                                  Tag="SunsetToSunrise" />
+                                    <ComboBoxItem AutomationProperties.AutomationId="NightLightCBItem_LightSwitch"
+                                                  Content="Follow Windows Night Light"
+                                                  Tag="FollowNightLight" />
+                                </ComboBox>
+                                <FontIcon Grid.Column="3"
+                                          Glyph="&#xE70E;"
+                                          FontSize="12"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center" />
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+
+                            <Grid x:Name="FixedTimeRow"
+                                  MinHeight="52"
+                                  Padding="58,8,44,8"
+                                  ColumnSpacing="16"
+                                  RowSpacing="0">
+                                <Grid.Transitions>
+                                    <TransitionCollection>
+                                        <EntranceThemeTransition />
+                                    </TransitionCollection>
+                                </Grid.Transitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="FixedTimeDescriptionColumn" Width="240" />
+                                    <ColumnDefinition x:Name="FixedTimeControlsColumn" Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel x:Name="FixedTimeDescriptionPanel"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Time" />
+                                    <TextBlock Text="Choose the light and dark mode trigger times"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <Grid x:Name="FixedTimePickerGrid"
+                                      Grid.Column="1"
+                                      ColumnSpacing="16"
+                                      RowSpacing="8"
+                                      HorizontalAlignment="Left">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition x:Name="LightTimeColumn" Width="140" />
+                                        <ColumnDefinition x:Name="DarkTimeColumn" Width="140" />
+                                    </Grid.ColumnDefinitions>
+                                    <TimePicker x:Name="LightTimePicker"
+                                                AutomationProperties.AutomationId="LightTime_LightSwitch"
+                                                ClockIdentifier="24HourClock"
+                                                Header="Light"
+                                                MinuteIncrement="1"
+                                                TimeChanged="OnTimeChanged" />
+                                    <TimePicker x:Name="DarkTimePicker"
+                                                AutomationProperties.AutomationId="DarkTime_LightSwitch"
+                                                Grid.Column="1"
+                                                ClockIdentifier="24HourClock"
+                                                Header="Dark"
+                                                MinuteIncrement="1"
+                                                TimeChanged="OnTimeChanged" />
+                                </Grid>
+                            </Grid>
+
+                            <Grid x:Name="SolarLocationRow"
+                                  MinHeight="52"
+                                  Padding="58,8,44,8"
+                                  ColumnSpacing="16"
+                                  RowSpacing="0">
+                                <Grid.Transitions>
+                                    <TransitionCollection>
+                                        <EntranceThemeTransition />
+                                    </TransitionCollection>
+                                </Grid.Transitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="SolarLocationDescriptionColumn" Width="240" />
+                                    <ColumnDefinition x:Name="SolarLocationControlsColumn" Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel x:Name="SolarLocationDescriptionPanel"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Location" />
+                                    <TextBlock x:Name="SolarLocationDescriptionText"
+                                               Text="Used to automatically calculate accurate sunrise and sunset times"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <Grid x:Name="SolarLocationInputGrid"
+                                      Grid.Column="1"
+                                      ColumnSpacing="12"
+                                      RowSpacing="8"
+                                      HorizontalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition x:Name="LocationSummaryColumn" Width="*" />
+                                        <ColumnDefinition x:Name="SetLocationColumn" Width="Auto" />
+                                        <ColumnDefinition x:Name="SyncLocationColumn" Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="LocationSummaryText"
+                                               MinWidth="84"
+                                               TextAlignment="Right"
+                                               VerticalAlignment="Center" />
+                                    <Button x:Name="SetLocationButton"
+                                            AutomationProperties.AutomationId="SetLocationButton_LightSwitch"
+                                            Grid.Column="1"
+                                            Content="Set"
+                                            VerticalAlignment="Center"
+                                            Click="OnSetLocationClicked" />
+                                    <Button x:Name="SyncLocationButton"
+                                            AutomationProperties.AutomationId="SyncLocationButton_LightSwitch"
+                                            Grid.Column="2"
+                                            Content="Sync"
+                                            VerticalAlignment="Center"
+                                            Click="OnSyncLocationClicked" />
+                                </Grid>
+                            </Grid>
+
+                            <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+
+                            <Grid x:Name="SolarOffsetRow"
+                                  MinHeight="52"
+                                  Padding="58,8,44,8"
+                                  ColumnSpacing="16"
+                                  RowSpacing="0">
+                                <Grid.Transitions>
+                                    <TransitionCollection>
+                                        <EntranceThemeTransition />
+                                    </TransitionCollection>
+                                </Grid.Transitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition x:Name="SolarOffsetDescriptionColumn" Width="240" />
+                                    <ColumnDefinition x:Name="SolarOffsetControlsColumn" Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel x:Name="SolarOffsetDescriptionPanel"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Offset (in minutes)" />
+                                    <TextBlock x:Name="SolarOffsetDescriptionText"
+                                               Text="Adjust the trigger time by starting earlier or later"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <Grid x:Name="SolarOffsetInputGrid"
+                                      Grid.Column="1"
+                                      ColumnSpacing="12"
+                                      RowSpacing="8"
+                                      HorizontalAlignment="Left">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition x:Name="SunriseOffsetLabelColumn" Width="Auto" />
+                                        <ColumnDefinition x:Name="SunriseOffsetBoxColumn" Width="110" />
+                                        <ColumnDefinition x:Name="SunsetOffsetLabelColumn" Width="Auto" />
+                                        <ColumnDefinition x:Name="SunsetOffsetBoxColumn" Width="110" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:Name="SunriseOffsetLabel"
+                                               Text="Sunrise"
+                                               VerticalAlignment="Center" />
+                                    <NumberBox x:Name="SunriseOffsetBox"
+                                               AutomationProperties.AutomationId="SunriseOffset_LightSwitch"
+                                               Grid.Column="1"
+                                               LargeChange="30"
+                                               SmallChange="5"
+                                               SpinButtonPlacementMode="Inline"
+                                               ValueChanged="OnNumberChanged" />
+                                    <TextBlock x:Name="SunsetOffsetLabel"
+                                               Grid.Column="2"
+                                               Text="Sunset"
+                                               VerticalAlignment="Center" />
+                                    <NumberBox x:Name="SunsetOffsetBox"
+                                               AutomationProperties.AutomationId="SunsetOffset_LightSwitch"
+                                               Grid.Column="3"
+                                               LargeChange="30"
+                                               SmallChange="5"
+                                               SpinButtonPlacementMode="Inline"
+                                               ValueChanged="OnNumberChanged" />
+                                </Grid>
+                            </Grid>
+
+                            <Border x:Name="TimelinePanel"
+                                    AutomationProperties.AutomationId="Timeline_LightSwitch"
+                                    Padding="58,12,44,18"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="0,1,0,0">
+                                <Border.Transitions>
+                                    <TransitionCollection>
+                                        <EntranceThemeTransition />
+                                    </TransitionCollection>
+                                </Border.Transitions>
+                                <StackPanel Spacing="8">
+                                    <Canvas x:Name="TimelineLabelCanvas"
+                                            Height="22">
+                                        <TextBlock x:Name="LightBoundaryText"
+                                                   AutomationProperties.AutomationId="SunriseText_LightSwitch"
+                                                   Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                   FontWeight="SemiBold" />
+                                        <TextBlock x:Name="DarkBoundaryText"
+                                                   AutomationProperties.AutomationId="SunsetText_LightSwitch"
+                                                   Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                   FontWeight="SemiBold" />
+                                    </Canvas>
+                                    <Canvas x:Name="TimelineCanvas"
+                                            Height="64"
+                                            SizeChanged="OnTimelineSizeChanged">
+                                        <Border x:Name="TimelineTrack"
+                                                Canvas.Left="0"
+                                                Canvas.Top="16"
+                                                Height="24"
+                                                CornerRadius="5"
+                                                Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                                BorderThickness="1" />
+                                        <Border x:Name="TimelineLightSegment"
+                                                Canvas.Top="16"
+                                                Height="24"
+                                                CornerRadius="5"
+                                                Background="{ThemeResource AccentFillColorDefaultBrush}" />
+                                        <Border x:Name="TimelineLightSegmentWrap"
+                                                Canvas.Top="16"
+                                                Height="24"
+                                                CornerRadius="5"
+                                                Background="{ThemeResource AccentFillColorDefaultBrush}" />
+                                        <FontIcon x:Name="TimelineLightIcon"
+                                                  Canvas.Top="16"
+                                                  Width="24"
+                                                  Height="24"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Glyph="&#xE706;"
+                                                  FontSize="12"
+                                                  Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                        <FontIcon x:Name="TimelineLightIconWrap"
+                                                  Canvas.Top="16"
+                                                  Width="24"
+                                                  Height="24"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Glyph="&#xE706;"
+                                                  FontSize="12"
+                                                  Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}" />
+                                        <FontIcon x:Name="TimelineDarkIcon"
+                                                  Canvas.Top="16"
+                                                  Width="24"
+                                                  Height="24"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Glyph="&#xE708;"
+                                                  FontSize="12"
+                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <FontIcon x:Name="TimelineDarkIconWrap"
+                                                  Canvas.Top="16"
+                                                  Width="24"
+                                                  Height="24"
+                                                  HorizontalAlignment="Center"
+                                                  VerticalAlignment="Center"
+                                                  Glyph="&#xE708;"
+                                                  FontSize="12"
+                                                  Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                                        <TextBlock Canvas.Left="0"
+                                                   Canvas.Top="48"
+                                                   Text="12:00 AM"
+                                                   Style="{StaticResource SecondaryTextStyle}" />
+                                        <TextBlock x:Name="TimelineSixAmLabel"
+                                                   Canvas.Top="48"
+                                                   Text="6:00 AM"
+                                                   Style="{StaticResource SecondaryTextStyle}" />
+                                        <TextBlock x:Name="TimelineNoonLabel"
+                                                   Canvas.Top="48"
+                                                   Text="12:00 PM"
+                                                   Style="{StaticResource SecondaryTextStyle}" />
+                                        <TextBlock x:Name="TimelineSixPmLabel"
+                                                   Canvas.Top="48"
+                                                   Text="6:00 PM"
+                                                   Style="{StaticResource SecondaryTextStyle}" />
+                                        <TextBlock x:Name="TimelineEndLabel"
+                                                   Canvas.Top="48"
+                                                   Text="12:00 AM"
+                                                   Style="{StaticResource SecondaryTextStyle}" />
+                                    </Canvas>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel x:Name="BehaviorSection"
+                            Spacing="0">
+                    <TextBlock x:Name="BehaviorSectionTitle"
+                               Text="Behavior"
+                               Style="{StaticResource SectionTitleStyle}" />
+                    <Border x:Name="BehaviorCard"
+                            Style="{StaticResource SettingsCardStyle}">
+                        <StackPanel>
+                            <Grid MinHeight="68"
+                                  Padding="18,10"
+                                  ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Glyph="&#xE771;"
+                                          FontSize="18"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Apply dark mode to" />
+                                    <TextBlock Text="Pick which parts of your PC should follow Light Switch"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                            </Grid>
+                            <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+                            <Grid MinHeight="58"
+                                  Padding="58,0,18,0"
+                                  ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="System" />
+                                    <TextBlock Text="Taskbar, Start, and other system UI"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="ChangeSystemToggle"
+                                              AutomationProperties.AutomationId="ChangeSystemCheckbox_LightSwitch"
+                                              Grid.Column="1"
+                                              Width="124"
+                                              MinWidth="0"
+                                              HorizontalAlignment="Right"
+                                              VerticalAlignment="Center"
+                                              Toggled="OnToggleSettingChanged" />
+                            </Grid>
+                            <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+                            <Grid MinHeight="58"
+                                  Padding="58,0,18,0"
+                                  ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Apps" />
+                                    <TextBlock Text="Supported applications"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="ChangeAppsToggle"
+                                              AutomationProperties.AutomationId="ChangeAppsCheckbox_LightSwitch"
+                                              Grid.Column="1"
+                                              Width="124"
+                                              MinWidth="0"
+                                              HorizontalAlignment="Right"
+                                              VerticalAlignment="Center"
+                                              Toggled="OnToggleSettingChanged" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel x:Name="SystemSection"
+                            Spacing="0">
+                    <TextBlock x:Name="SystemSectionTitle"
+                               Text="System"
+                               Style="{StaticResource SectionTitleStyle}" />
+                    <Border x:Name="SystemCard"
+                            Style="{StaticResource SettingsCardStyle}">
+                        <StackPanel>
+                            <Grid x:Name="ManualSwitchRow"
+                                  MinHeight="58"
+                                  Padding="18,0,18,0"
+                                  ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="124" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Glyph="&#xE8AB;"
+                                          FontSize="18"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Manual switch" />
+                                    <TextBlock Text="Switch between light and dark mode immediately"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <TextBlock x:Name="ManualCurrentThemeText"
+                                           AutomationProperties.AutomationId="ManualCurrentTheme_LightSwitch"
+                                           Grid.Column="2"
+                                           MinWidth="90"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Center"
+                                           TextAlignment="Right"
+                                           Style="{StaticResource SecondaryTextStyle}" />
+                                <Button x:Name="ManualSwitchButton"
+                                        AutomationProperties.AutomationId="ManualSwitchButton_LightSwitch"
+                                        Grid.Column="3"
+                                        Width="124"
+                                        Height="32"
+                                        HorizontalAlignment="Stretch"
+                                        Padding="0"
+                                        VerticalAlignment="Center"
+                                        Click="OnManualSwitchClicked">
+                                    <StackPanel Orientation="Horizontal"
+                                                Spacing="6">
+                                        <FontIcon Glyph="&#xE8AB;"
+                                                  FontSize="13" />
+                                        <TextBlock Text="Switch now" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                            <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+                            <Grid x:Name="IconSelectionRow"
+                                  MinHeight="58"
+                                  Padding="18,0,18,0"
+                                  ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition x:Name="IconDescriptionColumn" Width="*" />
+                                    <ColumnDefinition x:Name="IconOptionsColumn" Width="148" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Glyph="&#xE91B;"
+                                          FontSize="18"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center" />
+                                <StackPanel x:Name="IconDescriptionPanel"
+                                            Grid.Column="1"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Icon" />
+                                    <TextBlock Text="Choose the icon shown in the main view"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <Border x:Name="IconOptionsPanel"
+                                        Grid.Column="2"
+                                        Width="124"
+                                        Height="34"
+                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Center"
+                                        Background="{ThemeResource ControlFillColorDefaultBrush}"
+                                        BorderBrush="{ThemeResource ControlStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="3">
+                                    <Grid x:Name="IconOptionsGrid"
+                                          ColumnSpacing="4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <ToggleButton x:Name="LightSwitchIconOption"
+                                                      AutomationProperties.AutomationId="IconOption_LightSwitch"
+                                                      AutomationProperties.Name="Light Switch icon"
+                                                      Tag="LightSwitch"
+                                                      Style="{StaticResource IconToggleButtonStyle}"
+                                                      Click="OnIconOptionClicked">
+                                            <Image Width="22"
+                                                   Height="22"
+                                                   Source="Assets/LightSwitch.scale-200.png" />
+                                        </ToggleButton>
+                                        <ToggleButton x:Name="DawnIconOption"
+                                                      AutomationProperties.AutomationId="IconOption_Dawn"
+                                                      AutomationProperties.Name="Dawn icon"
+                                                      Grid.Column="1"
+                                                      Tag="Dawn"
+                                                      Style="{StaticResource IconToggleButtonStyle}"
+                                                      Click="OnIconOptionClicked">
+                                            <Image Width="20"
+                                                   Height="20"
+                                                   Source="Assets/AutoDarkLogoDawn.scale-200.png" />
+                                        </ToggleButton>
+                                        <ToggleButton x:Name="OrbitIconOption"
+                                                      AutomationProperties.AutomationId="IconOption_Orbit"
+                                                      AutomationProperties.Name="Orbit icon"
+                                                      Grid.Column="2"
+                                                      Tag="Orbit"
+                                                      Style="{StaticResource IconToggleButtonStyle}"
+                                                      Click="OnIconOptionClicked">
+                                            <Image Width="20"
+                                                   Height="20"
+                                                   Source="Assets/AutoDarkLogoOrbit.scale-200.png" />
+                                        </ToggleButton>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                            <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+                            <Grid x:Name="AutoStartRow"
+                                  MinHeight="58"
+                                  Padding="18,0,18,0"
+                                  ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="148" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Glyph="&#xE7F4;"
+                                          FontSize="18"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Auto start" />
+                                    <TextBlock Text="Start AutoDark automatically when you sign in"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="StartWithWindowsToggle"
+                                              AutomationProperties.AutomationId="AutoStartToggle_LightSwitch"
+                                              Grid.Column="2"
+                                              Width="124"
+                                              MinWidth="0"
+                                              HorizontalAlignment="Right"
+                                              VerticalAlignment="Center"
+                                              Toggled="OnStartupToggleChanged" />
+                            </Grid>
+                            <Border Height="1" Background="{ThemeResource CardStrokeColorDefaultBrush}" />
+                            <Grid x:Name="MinimizeToTrayRow"
+                                  MinHeight="58"
+                                  Padding="18,0,18,0"
+                                  ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="32" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="148" />
+                                </Grid.ColumnDefinitions>
+                                <FontIcon Glyph="&#xE71B;"
+                                          FontSize="18"
+                                          Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center" />
+                                <StackPanel Grid.Column="1"
+                                            Spacing="2"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="Minimize to tray" />
+                                    <TextBlock Text="Keep AutoDark running in the notification area when the window closes"
+                                               Style="{StaticResource SecondaryTextStyle}" />
+                                </StackPanel>
+                                <ToggleSwitch x:Name="MinimizeToTrayToggle"
+                                              AutomationProperties.AutomationId="MinimizeToTrayToggle_LightSwitch"
+                                              Grid.Column="2"
+                                              Width="124"
+                                              MinWidth="0"
+                                              HorizontalAlignment="Right"
+                                              VerticalAlignment="Center"
+                                              Toggled="OnToggleSettingChanged" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <StackPanel x:Name="AboutSection"
+                            Spacing="0">
+                    <TextBlock Text="About"
+                               Style="{StaticResource SectionTitleStyle}" />
+                    <Border Style="{StaticResource SettingsCardStyle}">
+                        <Grid MinHeight="58"
+                              Padding="18,0,18,0"
+                              ColumnSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="32" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <FontIcon Glyph="&#xE946;"
+                                      FontSize="18"
+                                      Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                      VerticalAlignment="Center" />
+                            <StackPanel Grid.Column="1"
+                                        Spacing="2"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="AutoDark" />
+                                <TextBlock x:Name="AppVersionText"
+                                           Text="Version"
+                                           Style="{StaticResource SecondaryTextStyle}" />
+                            </StackPanel>
+                            <HyperlinkButton Grid.Column="2"
+                                             Content="@Guijianchou"
+                                             FontSize="12"
+                                             MinHeight="0"
+                                             Padding="0"
+                                             VerticalAlignment="Center"
+                                             NavigateUri="https://github.com/guijianchou" />
+                        </Grid>
+                    </Border>
+                </StackPanel>
+
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </Grid>
+</Window>
